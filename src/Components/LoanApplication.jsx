@@ -1,48 +1,47 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
-export default function LoanApplication() {
-  const [formData, setFormData] = useState({
-    amount: '',
-    term: ''
-  });
+const LoanApplication = () => {
+  const [amount, setAmount] = useState('');
+  const [term, setTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Call API to submit loan application here
-    console.log(formData);
+  const submitLoanApplication = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await axios.post('http://localhost:5000/loan', { amount, term, startDate }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (response.status == '201'){
+
+          alert('Loan application submitted!');
+      } 
+    } catch (error) {
+      alert('Error submitting loan application');
+    }
   };
 
   return (
-    <div className="p-10">
-      <h1 className="text-2xl font-bold mb-4">Loan Application</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Loan Amount</label>
-          <input
-            type="number"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-            value={formData.amount}
-            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Loan Term (in weeks)</label>
-          <input
-            type="number"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-            value={formData.term}
-            onChange={(e) => setFormData({ ...formData, term: e.target.value })}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        >
-          Submit Loan Application
-        </button>
-      </form>
+    <div className="max-w-md mx-auto bg-white p-6 rounded-md shadow-md">
+      <h2 className="text-xl font-bold mb-4">Loan Application</h2>
+      <div className="mb-4">
+        <label className="block text-gray-700">Amount</label>
+        <input type="number" className="mt-1 block w-full" value={amount} onChange={e => setAmount(e.target.value)} />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700">Term (weeks)</label>
+        <input type="number" className="mt-1 block w-full" value={term} onChange={e => setTerm(e.target.value)} />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700">Start Date</label>
+        <input type="date" className="mt-1 block w-full" value={startDate} onChange={e => setStartDate(e.target.value)} />
+      </div>
+      <button className="bg-primary text-white px-4 py-2 rounded" onClick={submitLoanApplication}>Submit</button>
     </div>
   );
-}
+};
+
+export default LoanApplication;

@@ -1,48 +1,43 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
-export default function Repayment() {
-  const [formData, setFormData] = useState({
-    loanId: '',
-    amount: ''
-  });
+const Repayment = () => {
+  const [loanId, setLoanId] = useState('');
+  const [repaymentId, setRepaymentId] = useState('');
+  const [amount, setAmount] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Call API to submit repayment here
-    console.log(formData);
+  const submitRepayment = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`http://localhost:5000/loan/${loanId}/repayment/${repaymentId}`, { amount }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      alert('Repayment submitted successfully!');
+    } catch (error) {
+      alert('Error submitting repayment');
+    }
   };
 
   return (
-    <div className="p-10">
-      <h1 className="text-2xl font-bold mb-4">Submit Repayment</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Loan ID</label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-            value={formData.loanId}
-            onChange={(e) => setFormData({ ...formData, loanId: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Repayment Amount</label>
-          <input
-            type="number"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-            value={formData.amount}
-            onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        >
-          Submit Repayment
-        </button>
-      </form>
+    <div className="max-w-md mx-auto bg-white p-6 rounded-md shadow-md">
+      <h2 className="text-xl font-bold mb-4">Repayment Submission</h2>
+      <div className="mb-4">
+        <label className="block text-gray-700">Loan ID</label>
+        <input type="text" className="mt-1 block w-full" value={loanId} onChange={e => setLoanId(e.target.value)} />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700">Repayment ID</label>
+        <input type="text" className="mt-1 block w-full" value={repaymentId} onChange={e => setRepaymentId(e.target.value)} />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700">Amount</label>
+        <input type="number" className="mt-1 block w-full" value={amount} onChange={e => setAmount(e.target.value)} />
+      </div>
+      <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={submitRepayment}>Submit</button>
     </div>
   );
-}
+};
+
+export default Repayment;
