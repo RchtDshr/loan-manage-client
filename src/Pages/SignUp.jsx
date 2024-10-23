@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { ClipLoader } from 'react-spinners'; 
 
 export default function SignUp() {
     const [signupCredentials, setSignupCredentials] = useState({ name: "", email: "", password: "" });
     const [visible, setVisible] = useState(false);
     const [passwordMessage, setPasswordMessage] = useState(""); // Password validation message
     const [isPasswordValid, setIsPasswordValid] = useState(false); // Track password validity
+    const [loading, setLoading] = useState(false); 
 
     const navigate = useNavigate();
 
@@ -28,7 +30,7 @@ export default function SignUp() {
             setPasswordMessage("Password must be at least 6 characters long, include a digit, and a special character.");
             setIsPasswordValid(false);
         } else {
-            setPasswordMessage(""); // Clear message when valid
+            setPasswordMessage(""); 
             setIsPasswordValid(true);
         }
     };
@@ -39,27 +41,32 @@ export default function SignUp() {
             alert("Please provide a valid password");
             return;
         }
+
+        setLoading(true); 
+
         try {
             const response = await axios.post('http://localhost:5000/user/signup', signupCredentials);
 
-            if (response.status='200') {
+            if (response.status === 201) {
                 if (response.data.token) {
                     localStorage.setItem("token", response.data.token);
                     axios.defaults.headers.common[
                       "Authorization"
                     ] = `Bearer ${response.data.token}`;
                     navigate("/loan-application");
-                  }
-                  alert("Sign up successfull");
-                navigate('/dashboard', { state: { email: signupCredentials.email } });
+                }
+                alert("Sign up successful");
+                navigate('/loan-application', { state: { email: signupCredentials.email } });
             } else if (response.data.message === 'User already exists') {
                 alert("User already exists");
             } else {
                 alert("Cannot sign up: " + response.data.message);
             }
         } catch (error) {
-            console.error("Error during sign up:", error);
-            alert(error.response?.data?.message || "An error occurred during sign up");
+            console.error("Error during sign-up:", error);
+            alert(error.response?.data?.message || "An error occurred during sign-up");
+        } finally {
+            setLoading(false); 
         }
     };
 
@@ -67,8 +74,7 @@ export default function SignUp() {
         <div className='font-primary w-[100vw] h-[100vh] flex justify-center items-center'>
             <div className='bg-white w-[80vw] h-[60vh] shadow-lg rounded-lg flex justify-around px-12 py-20 gap-12'>
                 <div className='signin-left flex flex-1 flex-col items-start justify-start gap-2'>
-                    {/* <img src="./logo.png" alt="logo" className='w-[60px] h-[60px]' /> */}
-                    <h1 className='font-bold text-3xl'>Welcome to CrowdCast</h1>
+                    <h1 className='font-bold text-3xl'>Welcome to Techdome Loan</h1>
                     <p className='text-sm'>Welcome! Please sign up to continue</p>
                 </div>
                 <div className='signin-right text-sm flex-1 flex justify-end items-end relative'>
@@ -120,10 +126,10 @@ export default function SignUp() {
                         <div className="flex items-center justify-end gap-6 mt-10">
                             <button
                                 type="submit"
-                                className={`btn font-bold shadow-lg w-[8rem] hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 ${!isPasswordValid ? 'cursor-not-allowed opacity-50' : ''}`}
-                                disabled={!isPasswordValid} // Disable button if password is invalid
+                                className={`btn font-bold shadow-lg w-[8rem] hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 ${!isPasswordValid || loading ? 'cursor-not-allowed opacity-50' : ''}`}
+                                disabled={!isPasswordValid || loading} // Disable button if password is invalid or loading
                             >
-                                Sign Up
+                                {loading ? <ClipLoader color="#fff" size={20} /> : 'Sign Up'}
                             </button>
                         </div>
                     </form>

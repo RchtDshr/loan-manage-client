@@ -29,16 +29,15 @@ const AdminLoans = () => {
   const approveLoan = async (loanId) => {
     try {
       const response = await axios.put(
-        'http://localhost:5000/admin/loans/approve', // URL without loanId
-        { loanId }, // Send loanId in the body
+        'http://localhost:5000/admin/loans/approve', 
+        { loanId }, 
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }
       );
-      // setLoans(response.data.loans);
-
+      
       // Update loan status in the frontend state
       setLoans((loans) =>
         loans.map((loan) => (loan._id === loanId ? { ...loan, status: 'APPROVED' } : loan))
@@ -77,7 +76,7 @@ const AdminLoans = () => {
               <td className="border border-gray-300 p-2">
                 {loan.status === 'PENDING' ? (
                   <button
-                    onClick={() => approveLoan(loan._id)} // Send loanId to approveLoan function
+                    onClick={() => approveLoan(loan._id)} 
                     className="btn"
                   >
                     Approve

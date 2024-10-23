@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { ClipLoader } from "react-spinners"; 
 
 const Repayment = () => {
   const [loans, setLoans] = useState([]);
-  const [enteredAmounts, setEnteredAmounts] = useState({}); // Store user-entered amounts
+  const [enteredAmounts, setEnteredAmounts] = useState({}); 
+  const [loading, setLoading] = useState(false); 
 
   // Fetch loans when the component mounts
   useEffect(() => {
     const fetchLoans = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/loan/approved"); // Ensure this is the correct endpoint
+        const response = await axios.get("http://localhost:5000/loan/approved"); 
         setLoans(response.data.loans);
       } catch (error) {
         console.error("Error fetching loans:", error);
@@ -31,6 +33,7 @@ const Repayment = () => {
       return;
     }
 
+    setLoading(true); 
     try {
       await axios.post("http://localhost:5000/loan/repayment", {
         loanId,
@@ -39,12 +42,14 @@ const Repayment = () => {
       });
 
       // After successful payment, re-fetch the loan data to reflect all updates
-      const response = await axios.get("http://localhost:5000/loan");
-      setLoans(response.data.loans); // Update the loans state with fresh data
+      const response = await axios.get("http://localhost:5000/loan/approved");
+      setLoans(response.data.loans); 
 
       alert("Payment successful!");
     } catch (error) {
       console.error("Error making repayment:", error);
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -77,78 +82,82 @@ const Repayment = () => {
   return (
     <div className="p-5 box">
       <h1 className="text-2xl font-semibold mb-4">Repayment Options</h1>
-          {loans.length === 0 ? "Loans need to be approved to start the repayment" : (
-
-            <table className="min-w-full border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border border-gray-300 p-2">Loan Amount</th>
-            <th className="border border-gray-300 p-2">End Date</th>
-            <th className="border border-gray-300 p-2">Due Amount</th>
-            <th className="border border-gray-300 p-2">Status</th>
-            <th className="border border-gray-300 p-2">Amount Paid</th>
-            <th className="border border-gray-300 p-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {loans.map((loan) => {
-            const closestDueRepayment = isClosestDueRepayment(loan.repayments);
-            
-            return loan.repayments.map((repayment) =>  
-              {
+      {loading ? (
+        <div className="flex justify-center">
+          <ClipLoader color="#000" size={50} /> {/* Spinner */}
+        </div>
+      ) : loans.length === 0 ? (
+        "Loans need to be approved to start the repayment"
+      ) : (
+        <table className="min-w-full border border-gray-300">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border border-gray-300 p-2">Loan Amount</th>
+              <th className="border border-gray-300 p-2">End Date</th>
+              <th className="border border-gray-300 p-2">Due Amount</th>
+              <th className="border border-gray-300 p-2">Status</th>
+              <th className="border border-gray-300 p-2">Amount Paid</th>
+              <th className="border border-gray-300 p-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loans.map((loan) => {
+              const closestDueRepayment = isClosestDueRepayment(loan.repayments);
+              
+              return loan.repayments.map((repayment) => {
                 const isLast = isLastInstallment(loan.repayments, repayment);
                 return (
-              <tr key={repayment._id} className="hover:bg-gray-100">
-                <td className="border border-gray-300 p-2">{loan.amount}</td>
-                <td className="border border-gray-300 p-2">
-                  {new Date(repayment.dueDate).toLocaleDateString()}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {repayment.amount.toFixed(2)}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {repayment.status}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {/* For the last installment, only allow exact payment */}
-                    {(repayment.status === 'PENDING' && repayment === closestDueRepayment) ? (
-                      <input
-                        type="number"
-                        min={repayment.amount}
-                        max={isLast ? repayment.amount : undefined} // Lock max for the last installment
-                        value={enteredAmounts[repayment._id] || repayment.amount.toFixed(2)}
-                        onChange={(e) => handleAmountChange(repayment._id, e.target.value)}
-                        className="border px-2 py-1 w-full"
-                        disabled={isLast} // Disable input modification for the last installment
+                  <tr key={repayment._id} className="hover:bg-gray-100">
+                    <td className="border border-gray-300 p-2">{loan.amount}</td>
+                    <td className="border border-gray-300 p-2">
+                      {new Date(repayment.dueDate).toLocaleDateString()}
+                    </td>
+                    <td className="border border-gray-300 p-2">
+                      {repayment.amount.toFixed(2)}
+                    </td>
+                    <td className="border border-gray-300 p-2">
+                      {repayment.status}
+                    </td>
+                    <td className="border border-gray-300 p-2">
+                      {/* For the last installment, only allow exact payment */}
+                      {(repayment.status === 'PENDING' && repayment === closestDueRepayment) ? (
+                        <input
+                          type="number"
+                          min={repayment.amount}
+                          max={isLast ? repayment.amount : undefined} // Lock max for the last installment
+                          value={enteredAmounts[repayment._id] || repayment.amount.toFixed(2)}
+                          onChange={(e) => handleAmountChange(repayment._id, e.target.value)}
+                          className="border px-2 py-1 w-full"
+                          disabled={isLast} // Disable input modification for the last installment
                         />
                       ) : repayment.amountPaid.toFixed(2)}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {repayment.status === "PENDING" &&
-                    repayment === closestDueRepayment && (
-                      <button
-                        onClick={() =>
-                          handleRepayment(
-                            loan._id,
-                            repayment._id,
-                            repayment.amount,
-                            parseFloat(
-                              enteredAmounts[repayment._id] || repayment.amount
-                            )
-                          )
-                        }
-                        className="btn text-white px-4 py-2 rounded"
-                        >
-                        Pay Now
-                      </button>
-                    )}
-                </td>
-              </tr>
-            )
-          });
-          })}
-        </tbody>
-      </table>
+                    </td>
+                    <td className="border border-gray-300 p-2">
+                      {repayment.status === "PENDING" &&
+                        repayment === closestDueRepayment && (
+                          <button
+                            onClick={() =>
+                              handleRepayment(
+                                loan._id,
+                                repayment._id,
+                                repayment.amount,
+                                parseFloat(
+                                  enteredAmounts[repayment._id] || repayment.amount
+                                )
+                              )
+                            }
+                            className="btn text-white px-4 py-2 rounded"
+                          >
+                            Pay Now
+                          </button>
+                        )}
+                    </td>
+                  </tr>
+                );
+              });
+            })}
+          </tbody>
+        </table>
       )}
     </div>
   );
