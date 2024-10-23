@@ -31,6 +31,7 @@ const LoanListPage = () => {
               <th className="border border-gray-300 px-4 py-2">Repayment Due Date</th>
               <th className="border border-gray-300 px-4 py-2">Repayment Amount</th>
               <th className="border border-gray-300 px-4 py-2">Repayment Status</th>
+              <th className="border border-gray-300 px-4 py-2">Amount Paid</th>
             </tr>
           </thead>
           <tbody>
@@ -52,6 +53,7 @@ const LoanListPage = () => {
                   </td>
                   <td className="border border-gray-300 px-4 py-2">${repayment.amount.toFixed(2)}</td>
                   <td className="border border-gray-300 px-4 py-2">{repayment.status}</td>
+                  <td className="border border-gray-300 px-4 py-2">${repayment.amountPaid.toFixed(2)}</td>
                 </tr>
               ))
             ))}

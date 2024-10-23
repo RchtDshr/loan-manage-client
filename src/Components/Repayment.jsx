@@ -9,7 +9,7 @@ const Repayment = () => {
   useEffect(() => {
     const fetchLoans = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/loan"); // Ensure this is the correct endpoint
+        const response = await axios.get("http://localhost:5000/loan/approved"); // Ensure this is the correct endpoint
         setLoans(response.data.loans);
       } catch (error) {
         console.error("Error fetching loans:", error);
@@ -77,7 +77,9 @@ const Repayment = () => {
   return (
     <div className="p-5 box">
       <h1 className="text-2xl font-semibold mb-4">Repayment Options</h1>
-      <table className="min-w-full border border-gray-300">
+          {loans.length === 0 ? "Loans need to be approved to start the repayment" : (
+
+            <table className="min-w-full border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
             <th className="border border-gray-300 p-2">Loan Amount</th>
@@ -91,7 +93,7 @@ const Repayment = () => {
         <tbody>
           {loans.map((loan) => {
             const closestDueRepayment = isClosestDueRepayment(loan.repayments);
-
+            
             return loan.repayments.map((repayment) =>  
               {
                 const isLast = isLastInstallment(loan.repayments, repayment);
@@ -118,8 +120,8 @@ const Repayment = () => {
                         onChange={(e) => handleAmountChange(repayment._id, e.target.value)}
                         className="border px-2 py-1 w-full"
                         disabled={isLast} // Disable input modification for the last installment
-                      />
-                    ) : repayment.amountPaid.toFixed(2)}
+                        />
+                      ) : repayment.amountPaid.toFixed(2)}
                 </td>
                 <td className="border border-gray-300 p-2">
                   {repayment.status === "PENDING" &&
@@ -136,7 +138,7 @@ const Repayment = () => {
                           )
                         }
                         className="btn text-white px-4 py-2 rounded"
-                      >
+                        >
                         Pay Now
                       </button>
                     )}
@@ -147,6 +149,7 @@ const Repayment = () => {
           })}
         </tbody>
       </table>
+      )}
     </div>
   );
 };

@@ -8,12 +8,25 @@ import Signin from './Pages/SignIn';
 import LoanApplication from './Components/LoanApplication';
 import LoanList from './Components/LoanListPage';
 import Repayment from './Components/Repayment';
+import AdminLoans from './Pages/AdminView';
 
 // ProtectedRoute component
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   if (!token) {
     return <Navigate to="/signin" replace />;
+  }
+  return children;
+};
+
+// AdminRoute component to protect admin routes
+const AdminRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  const userRole = JSON.parse(atob(token.split('.')[1])).role; // Decode JWT to get user role (assuming you use JWT)
+
+  console.log(userRole)
+  if (!token || userRole !== 'admin') {
+    return <Navigate to="/loan-application" replace />; // Redirect to loan application if not admin
   }
   return children;
 };
@@ -36,6 +49,11 @@ function App() {
           <Route path="/loan-application" element={<LoanApplication />} />
           <Route path="/view-loan" element={<LoanList />} />
           <Route path="/repayment" element={<Repayment />} />
+          <Route element={
+            <AdminRoute>
+              <AdminLoans />
+            </AdminRoute>
+          } path="/admin/loans" /> {/* Admin Loans Route */}
         </Route>
 
         {/* Public Routes */}

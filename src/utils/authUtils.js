@@ -8,26 +8,11 @@ export const setAuthToken = (token) => {
   }
 };
 
-export async function getCurrentUser(token) {
-  try {
+export const isAdmin = () => {
+  const token = localStorage.getItem('token');
+  const userRole = JSON.parse(atob(token.split('.')[1])).role;
 
-    const response = await fetch('http://localhost:5000/user/getUser', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to fetch user data');
-    }
-    const data = await response.json(); // Read the response body once
-
-    return data;
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    throw error;
-  }
+  if (userRole === 'admin'){
+    return true;
+  } else { return false }
 }
