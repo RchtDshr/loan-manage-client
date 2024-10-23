@@ -25,6 +25,30 @@ const AdminLoans = () => {
     fetchLoans();
   }, []);
 
+  // Function to approve a loan by sending loanId in the body
+  const approveLoan = async (loanId) => {
+    try {
+      const response = await axios.put(
+        'http://localhost:5000/admin/loans/approve', // URL without loanId
+        { loanId }, // Send loanId in the body
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      // setLoans(response.data.loans);
+
+      // Update loan status in the frontend state
+      setLoans((loans) =>
+        loans.map((loan) => (loan._id === loanId ? { ...loan, status: 'APPROVED' } : loan))
+      );
+       alert('Loan approved successfully');
+    } catch (err) {
+      alert('Failed to approve loan');
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
@@ -38,6 +62,8 @@ const AdminLoans = () => {
             <th className="border border-gray-300 p-2">Loan Amount</th>
             <th className="border border-gray-300 p-2">Status</th>
             <th className="border border-gray-300 p-2">Date Applied</th>
+            <th className="border border-gray-300 p-2">Term</th>
+            <th className="border border-gray-300 p-2">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -47,6 +73,24 @@ const AdminLoans = () => {
               <td className="border border-gray-300 p-2">{loan.amount}</td>
               <td className="border border-gray-300 p-2">{loan.status}</td>
               <td className="border border-gray-300 p-2">{new Date(loan.createdAt).toLocaleDateString()}</td>
+              <td className="border border-gray-300 p-2"> {loan.term} </td>
+              <td className="border border-gray-300 p-2">
+                {loan.status === 'PENDING' ? (
+                  <button
+                    onClick={() => approveLoan(loan._id)} // Send loanId to approveLoan function
+                    className="btn"
+                  >
+                    Approve
+                  </button>
+                )
+              :
+              <button
+                    className="btn bg-red-700 "
+                  >
+                    Approved
+                  </button>
+              }
+              </td>
             </tr>
           ))}
         </tbody>

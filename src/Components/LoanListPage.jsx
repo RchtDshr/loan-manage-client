@@ -27,7 +27,7 @@ const LoanListPage = () => {
           <thead className="bg-gray-200">
             <tr>
               <th className="border border-gray-300 px-4 py-2">Loan Amount</th>
-              <th className="border border-gray-300 px-4 py-2">Status</th>
+              <th className="border border-gray-300 px-4 py-2">Approval Status</th>
               <th className="border border-gray-300 px-4 py-2">Repayment Due Date</th>
               <th className="border border-gray-300 px-4 py-2">Repayment Amount</th>
               <th className="border border-gray-300 px-4 py-2">Repayment Status</th>
