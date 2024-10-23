@@ -7,7 +7,7 @@ const LoanListPage = () => {
   useEffect(() => {
     const fetchLoans = async () => {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/loans', {
+      const response = await axios.get('http://localhost:5000/loan', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -18,22 +18,46 @@ const LoanListPage = () => {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto bg-white p-6 rounded-md shadow-md">
+    <div className="max-w-6xl mx-auto box bg-white p-6 rounded-md shadow-md">
       <h2 className="text-xl font-bold mb-4">Your Loans</h2>
-      {loans.map(loan => (
-        <div key={loan._id} className="border-t border-gray-200 py-4">
-          <p><strong>Amount:</strong> ${loan.amount}</p>
-          <p><strong>Status:</strong> {loan.status}</p>
-          <p><strong>Repayments:</strong></p>
-          <ul className="ml-4">
-            {loan.repayments.map(repayment => (
-              <li key={repayment._id}>
-                {new Date(repayment.dueDate).toLocaleDateString()}: ${repayment.amount} - {repayment.status}
-              </li>
+      {loans.length === 0 ? (
+        <p>No loans</p>
+      ) : (
+        <table className="min-w-full table-auto border border-gray-300">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="border border-gray-300 px-4 py-2">Loan Amount</th>
+              <th className="border border-gray-300 px-4 py-2">Status</th>
+              <th className="border border-gray-300 px-4 py-2">Repayment Due Date</th>
+              <th className="border border-gray-300 px-4 py-2">Repayment Amount</th>
+              <th className="border border-gray-300 px-4 py-2">Repayment Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loans.map((loan) => (
+              loan.repayments.map((repayment, index) => (
+                <tr key={`${loan._id}-${repayment._id}`} className="hover:bg-gray-100">
+                  {index === 0 && (
+                    <>
+                      <td rowSpan={loan.repayments.length} className="border border-gray-300 px-4 py-2">
+                        ${loan.amount.toFixed(2)}
+                      </td>
+                      <td rowSpan={loan.repayments.length} className="border border-gray-300 px-4 py-2">
+                        {loan.status}
+                      </td>
+                    </>
+                  )}
+                  <td className="border border-gray-300 px-4 py-2">
+                    {new Date(repayment.dueDate).toLocaleDateString()}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">${repayment.amount.toFixed(2)}</td>
+                  <td className="border border-gray-300 px-4 py-2">{repayment.status}</td>
+                </tr>
+              ))
             ))}
-          </ul>
-        </div>
-      ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

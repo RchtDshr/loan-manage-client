@@ -34,7 +34,7 @@ function App() {
           </ProtectedRoute>
         }>
           <Route path="/loan-application" element={<LoanApplication />} />
-          <Route path="/loan-list" element={<LoanList />} />
+          <Route path="/view-loan" element={<LoanList />} />
           <Route path="/repayment" element={<Repayment />} />
         </Route>
 

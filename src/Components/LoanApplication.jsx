@@ -15,7 +15,7 @@ const LoanApplication = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      if (response.status == '201'){
+      if (response.status == '200'){
 
           alert('Loan application submitted!');
       } 
@@ -25,7 +25,7 @@ const LoanApplication = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-md shadow-md">
+    <div className="max-w-md mx-auto box">
       <h2 className="text-xl font-bold mb-4">Loan Application</h2>
       <div className="mb-4">
         <label className="block text-gray-700">Amount</label>

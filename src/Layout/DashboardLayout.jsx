@@ -10,7 +10,7 @@ export default function DashboardLayout() {
         <Sidebar/>
         {/* <Navbar/> */}
         this is dashboard
-        <div className="relative h-full z-0 left-[20vw] top-20 w-[80vw] overflow-x-hidden">
+        <div className="relative h-full z-0 left-[20vw] top-20 w-[80vw] p-4 overflow-x-hidden">
             <Outlet />
         </div>
     </div>
